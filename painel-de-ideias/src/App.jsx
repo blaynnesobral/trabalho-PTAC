@@ -1,122 +1,102 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [ideias, setIdeias] = useState([]);
+  const [novaIdeia, setNovaIdeia] = useState("");
+  const [erro, setErro] = useState("");
+
+  function adicionar(event) {
+    event.preventDefault();
+
+    // Verifica se o campo está vazio
+    if (novaIdeia.trim() === "") {
+      setErro("Digite sua ideia antes de adicionar.");
+      return;
+    }
+
+    const nova = {
+      id: Date.now(),
+      texto: novaIdeia,
+      feita: false
+    };
+
+    setIdeias([...ideias, nova]);
+    setNovaIdeia("");
+    setErro("");
+  }
+
+  function concluir(id) {
+    const lista = ideias.map((ideia) => {
+      if (ideia.id === id) {
+        return {
+          ...ideia,
+          feita: !ideia.feita
+        };
+      }
+
+      return ideia;
+    });
+
+    setIdeias(lista);
+  }
+
+  function remover(id) {
+    const lista = ideias.filter((ideia) => ideia.id !== id);
+
+    setIdeias(lista);
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="container">
+      <h1>Painel de Ideias</h1>
 
-      <div className="ticks"></div>
+      <form onSubmit={adicionar}>
+        <input
+          type="text"
+          value={novaIdeia}
+          onChange={(event) => {
+            setNovaIdeia(event.target.value);
+            setErro("");
+          }}
+          placeholder="Digite sua ideia..."
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <button type="submit">Adicionar</button>
+      </form>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {erro && <p className="erro">{erro}</p>}
+
+      <ul>
+        {ideias.map((ideia) => (
+          <li key={ideia.id}>
+            <input
+              type="checkbox"
+              checked={ideia.feita}
+              onChange={() => concluir(ideia.id)}
+            />
+
+            <span
+              className={ideia.feita ? "feita" : ""}
+            >
+              {ideia.texto}
+            </span>
+
+            <button
+              className="remover"
+              onClick={() => remover(ideia.id)}
+            >
+              X
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <p className="contador">
+        {ideias.length} ideias no painel ·{" "}
+        {ideias.filter((ideia) => ideia.feita).length} concluídas
+      </p>
+    </div>
+  );
 }
 
-export default App
+export default App;
